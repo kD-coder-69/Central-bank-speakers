@@ -1,5 +1,5 @@
 // GET /api/digest?type=morning|evening&key=YOUR_DIGEST_KEY
-//   morning -> today's speakers (schedule)
+//   morning -> today's speakers with bias and their last 2 comments
 //   evening -> tomorrow's speakers with bias and their last 2 comments
 // Add &preview=1 to see the Teams card JSON without posting it.
 //
@@ -128,9 +128,12 @@ module.exports = async (req, res) => {
     if (data) for (const sp of data.speakers) sp.ist = ukToIst(data.dateKey || today, sp.uk);
 
     // Build the card, trimming comments if it gets too big for Teams.
-    const attempts = type === 'evening'
-      ? [{ withComments: true, maxComments: 2, commentChars: 450 }, { withComments: true, maxComments: 2, commentChars: 220 }, { withComments: true, maxComments: 1, commentChars: 160 }, { withComments: false }]
-      : [{ withComments: false }];
+    const attempts = [
+      { withComments: true, maxComments: 2, commentChars: 450 },
+      { withComments: true, maxComments: 2, commentChars: 220 },
+      { withComments: true, maxComments: 1, commentChars: 160 },
+      { withComments: false },
+    ];
     let card;
     for (const opts of attempts) {
       card = buildCard({ title, data, note, dashboardUrl, opts });
