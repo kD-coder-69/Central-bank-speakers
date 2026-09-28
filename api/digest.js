@@ -18,6 +18,24 @@ function londonTodayKey() {
   return (+p.year) * 10000 + (+p.month) * 100 + (+p.day);
 }
 
+function tzParts(tz, d) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(d).map(x => [x.type, x.value]));
+  return { y: +p.year, mo: +p.month, d: +p.day, h: +p.hour, mi: +p.minute };
+}
+const pad = n => String(n).padStart(2, '0');
+
+// UK time on the lineup date -> IST ("+1" if it falls on the next day in India)
+function ukToIst(dateKey, hhmm) {
+  const y = Math.floor(dateKey / 10000), mo = Math.floor(dateKey / 100) % 100, d = dateKey % 100;
+  const [h, m] = hhmm.split(':').map(Number);
+  const guess = Date.UTC(y, mo - 1, d, h, m);
+  const L = tzParts('Europe/London', new Date(guess));
+  const offMin = (Date.UTC(L.y, L.mo - 1, L.d, L.h, L.mi) - guess) / 60000;
+  const I = tzParts('Asia/Kolkata', new Date(guess - offMin * 60000));
+  const next = I.y * 10000 + I.mo * 100 + I.d > dateKey ? ' +1' : '';
+  return `${pad(I.h)}:${pad(I.mi)}${next}`;
+}
+
 function biasInfo(bias) {
   const l = (bias || '').toLowerCase();
   if (l.includes('hawk')) return { label: /slight|lean|mild/.test(l) ? bias : 'Hawk', color: 'Attention' };
@@ -48,7 +66,7 @@ function speakerBlock(sp, { withComments, commentChars, maxComments }, first) {
       { type: 'Column', width: '70px', items: [
         { type: 'TextBlock', text: sp.uk, weight: 'Bolder', size: 'Large', spacing: 'None' },
         { type: 'TextBlock', text: 'UK', size: 'Small', isSubtle: true, spacing: 'None' },
-        { type: 'TextBlock', text: `NY ${sp.ny}`, size: 'Small', isSubtle: true, spacing: 'Small' },
+        { type: 'TextBlock', text: `IST ${sp.ist}`, size: 'Small', isSubtle: true, spacing: 'Small' },
       ] },
       { type: 'Column', width: 'stretch', items: details },
     ],
@@ -106,6 +124,8 @@ module.exports = async (req, res) => {
         data = null;
       }
     }
+
+    if (data) for (const sp of data.speakers) sp.ist = ukToIst(data.dateKey || today, sp.uk);
 
     // Build the card, trimming comments if it gets too big for Teams.
     const attempts = type === 'evening'

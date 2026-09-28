@@ -106,7 +106,7 @@ footer{margin-top:24px;color:var(--faint);font-size:12px;text-align:center}
     </div>
     <div class="clocks">
       <div class="clock"><span>London</span><b id="clkLon">--:--</b></div>
-      <div class="clock"><span>New York</span><b id="clkNy">--:--</b></div>
+      <div class="clock"><span>India</span><b id="clkNy">--:--</b></div>
     </div>
   </header>
 
@@ -120,7 +120,7 @@ footer{margin-top:24px;color:var(--faint);font-size:12px;text-align:center}
 
   <div class="filters" id="filters"></div>
   <main id="view"><div class="empty">Loading lineup…</div></main>
-  <footer>Source: ITC Markets speaker preview · Times shown as published (UK and New York)</footer>
+  <footer>Source: ITC Markets speaker preview · Times shown in UK and India (IST)</footer>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -152,6 +152,18 @@ function lineupDateKey(s) {
   return mo ? (+m[3]) * 10000 + mo * 100 + (+m[1]) : null;
 }
 const hm = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+// UK time on the lineup date -> IST ("+1" if it falls on the next day in India)
+function ukToIst(dateKey, hhmm) {
+  if (!dateKey) dateKey = londonDateKey();
+  const y = Math.floor(dateKey / 10000), mo = Math.floor(dateKey / 100) % 100, d = dateKey % 100;
+  const [h, m] = hhmm.split(':').map(Number);
+  const guess = Date.UTC(y, mo - 1, d, h, m);
+  const L = tzParts('Europe/London', new Date(guess));
+  const offMin = (Date.UTC(L.y, L.mo - 1, L.d, L.h, L.mi) - guess) / 60000;
+  const I = tzParts('Asia/Kolkata', new Date(guess - offMin * 60000));
+  const next = I.y * 10000 + I.mo * 100 + I.d > dateKey ? ' +1' : '';
+  return `${pad(I.h)}:${pad(I.mi)}${next}`;
+}
 
 // ---------- PDF parsing ----------
 async function parseLineup(buf) {
@@ -274,7 +286,7 @@ function renderCards(data, isLiveDay) {
     const label = { next: 'Next up', live: 'In progress', done: 'Done' }[st];
     const comments = s.comments.length ? `<div class="comments"><div class="h">Prior comments</div>${s.comments.map(c => `<div class="cm" title="Click to expand"><span class="d">${esc(c.date)}</span><span class="t">${esc(c.text)}</span></div>`).join('')}</div>` : '';
     return `<article class="card ${st === 'upcoming' ? '' : st}">
-      <div class="time"><div class="lbl">UK</div><div class="uk">${esc(s.uk)}</div><div class="ny">NY ${esc(s.ny)}</div>${label ? `<span class="state ${st}">${label}</span>` : ''}</div>
+      <div class="time"><div class="lbl">UK</div><div class="uk">${esc(s.uk)}</div><div class="ny">IST ${esc(ukToIst(data.dateKey, s.uk))}</div>${label ? `<span class="state ${st}">${label}</span>` : ''}</div>
       <div class="body">
         <div class="top">
           ${s.bank ? `<span class="bank" style="background:${bankColor(s.bank)}">${esc(s.bank)}</span>` : ''}
@@ -300,7 +312,7 @@ function countdownTo15() {
 
 function render() {
   // clocks
-  const L = tzParts('Europe/London'), N = tzParts('America/New_York');
+  const L = tzParts('Europe/London'), N = tzParts('Asia/Kolkata');
   document.getElementById('clkLon').textContent = `${pad(L.h)}:${pad(L.mi)}:${pad(L.s)}`;
   document.getElementById('clkNy').textContent = `${pad(N.h)}:${pad(N.mi)}:${pad(N.s)}`;
 
@@ -378,7 +390,7 @@ function toast(msg) { const t = document.getElementById('toast'); t.textContent 
 // ticking clock + countdown + card states (without re-parsing)
 let lastMinute = -1;
 setInterval(() => {
-  const L = tzParts('Europe/London'), N = tzParts('America/New_York');
+  const L = tzParts('Europe/London'), N = tzParts('Asia/Kolkata');
   document.getElementById('clkLon').textContent = `${pad(L.h)}:${pad(L.mi)}:${pad(L.s)}`;
   document.getElementById('clkNy').textContent = `${pad(N.h)}:${pad(N.mi)}:${pad(N.s)}`;
   const cd = document.getElementById('cd'); if (cd) cd.textContent = countdownTo15();
