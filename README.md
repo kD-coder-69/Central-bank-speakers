@@ -17,3 +17,15 @@ Keep the window open. No npm install is needed.
 
 ## Change the port
 `set PORT=8080 && node server.js`
+
+## Teams updates (Vercel)
+`/api/digest` posts an Adaptive Card to a Teams chat or channel through a Workflows webhook.
+
+| Call | Posts |
+|---|---|
+| `/api/digest?type=morning&key=KEY` | Today's schedule |
+| `/api/digest?type=evening&key=KEY` | Tomorrow's schedule + bias + last 2 comments |
+| add `&preview=1` | Returns the card JSON without posting |
+
+Vercel environment variables: `TEAMS_WEBHOOK_URL`, `DIGEST_KEY`, optional `DASHBOARD_URL`.
+Schedule the two calls with cron-job.org (time zone Europe/London): 08:00 and 18:30.
