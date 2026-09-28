@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central Bank Speakers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --panel:#ffffff; --panel2:#f8f9fb; --line:#e3e6ea; --text:#15181d; --muted:#667085; --faint:#98a2b3;
+  --accent:#1f6feb; --live:#12a150; --warn:#c77700; --hawk:#c9302c; --dove:#1f6feb; --neutral:#667085;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1117; --panel:#151b23; --panel2:#11161d; --line:#262d36; --text:#e6edf3; --muted:#8b949e; --faint:#6e7681;
+    --accent:#4c9aff; --live:#2ea043; --warn:#d29922; --hawk:#f47067; --dove:#6cb6ff; --neutral:#8b949e;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1117; --panel:#151b23; --panel2:#11161d; --line:#262d36; --text:#e6edf3; --muted:#8b949e; --faint:#6e7681;
+  --accent:#4c9aff; --live:#2ea043; --warn:#d29922; --hawk:#f47067; --dove:#6cb6ff; --neutral:#8b949e;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+h1{font-size:22px;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.clocks{display:flex;gap:16px}
+.clock{text-align:right}
+.clock b{display:block;font-size:18px;font-family:"JetBrains Mono",monospace}
+.clock span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tabs{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tab{border:0;background:none;color:var(--muted);font:600 14px Inter,sans-serif;padding:7px 16px;border-radius:7px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:#fff}
+.tab small{font-weight:500;opacity:.8;margin-left:6px}
+.status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 var(--live);animation:pulse 2s infinite}
+.dot.off{background:var(--hawk);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--live) 60%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:4px 12px;font:500 12px Inter,sans-serif;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:4px 0 10px;flex-wrap:wrap}
+.dayhead h2{font-size:16px;margin:0}
+.dayhead a{color:var(--muted);font-size:12px}
+.notice{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:28px 20px;text-align:center;box-shadow:var(--shadow)}
+.notice h3{margin:0 0 6px;font-size:17px}
+.notice p{margin:4px 0;color:var(--muted)}
+.countdown{font:600 32px "JetBrains Mono",monospace;margin:12px 0 4px;color:var(--accent)}
+.warnline{border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));background:color-mix(in srgb,var(--warn) 8%,var(--panel));color:var(--text);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{display:grid;grid-template-columns:88px 1fr;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.card.done{opacity:.55}
+.card.next{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card.live{border-color:var(--live);box-shadow:0 0 0 1px var(--live)}
+.time{background:var(--panel2);border-right:1px solid var(--line);padding:14px 10px;text-align:center}
+.time .uk{font:600 20px "JetBrains Mono",monospace}
+.time .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.time .ny{font:500 13px "JetBrains Mono",monospace;color:var(--muted);margin-top:6px}
+.state{display:inline-block;margin-top:8px;font:600 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:4px}
+.state.next{background:var(--accent);color:#fff}
+.state.live{background:var(--live);color:#fff}
+.state.done{background:var(--line);color:var(--muted)}
+.body{padding:12px 16px 14px;min-width:0}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.bank{font:700 11px Inter,sans-serif;letter-spacing:.04em;padding:3px 7px;border-radius:5px;color:#fff}
+.name{font-size:17px;font-weight:700}
+.pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid currentColor}
+.pill.hawk{color:var(--hawk)} .pill.dove{color:var(--dove)} .pill.neutral{color:var(--neutral)} .pill.nv{color:var(--muted);border-style:dashed}
+.event{margin:6px 0 8px;color:var(--text)}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 7px}
+.tag.yes{color:var(--live);border-color:color-mix(in srgb,var(--live) 40%,var(--line))}
+.comments{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+.comments .h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cm{display:grid;grid-template-columns:52px 1fr;gap:8px;padding:4px 0;cursor:pointer}
+.cm .d{font:600 12px "JetBrains Mono",monospace;color:var(--muted)}
+.cm .t{color:var(--text);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cm.open .t{-webkit-line-clamp:unset;display:block}
+.empty{color:var(--muted);text-align:center;padding:30px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;transition:transform .3s;z-index:9}
+.toast.show{transform:translateX(-50%) translateY(0)}
+footer{margin-top:24px;color:var(--faint);font-size:12px;text-align:center}
+.themebtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:12px}
+@media (max-width:560px){
+  .card{grid-template-columns:70px 1fr}
+  .time .uk{font-size:17px}
+  .clocks{width:100%;justify-content:flex-start}
+  .clock{text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Central Bank Speakers</h1>
+      <div class="sub">Live lineup · updates automatically</div>
+    </div>
+    <div class="clocks">
+      <div class="clock"><span>London</span><b id="clkLon">--:--</b></div>
+      <div class="clock"><span>New York</span><b id="clkNy">--:--</b></div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="today" aria-selected="true">Today<small id="cntToday"></small></button>
+      <button class="tab" role="tab" data-tab="tomorrow" aria-selected="false">Tomorrow<small id="cntTomorrow"></small></button>
+    </div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">Connecting…</span><button class="themebtn" id="themeBtn" title="Toggle theme">◐</button></div>
+  </div>
+
+  <div class="filters" id="filters"></div>
+  <main id="view"><div class="empty">Loading lineup…</div></main>
+  <footer>Source: ITC Markets speaker preview · Times shown as published (UK and New York)</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+
+const POLL_MS = 20000;
+const PUBLISH_MIN = 15 * 60; // 15:00 UK time
+const feeds = { today: null, tomorrow: null };   // {hash, data, meta}
+let status = null, tab = 'today', region = 'All', online = true;
+
+try { const t = localStorage.getItem('cbs-theme'); if (t) document.documentElement.dataset.theme = t; } catch (_) {}
+try { const t = sessionStorage.getItem('cbs-tab'); if (t) tab = t; } catch (_) {}
+
+// ---------- time helpers ----------
+function tzParts(tz, d = new Date()) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23' }).formatToParts(d).map(x => [x.type, x.value]));
+  return { y:+p.year, mo:+p.month, d:+p.day, h:+p.hour, mi:+p.minute, s:+p.second };
+}
+const londonMin = () => { const p = tzParts('Europe/London'); return p.h * 60 + p.mi + p.s / 60; };
+const londonDateKey = () => { const p = tzParts('Europe/London'); return p.y * 10000 + p.mo * 100 + p.d; };
+const pad = n => String(n).padStart(2, '0');
+const MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+function lineupDateKey(s) {
+  const m = s && s.match(/(\d{1,2})\s+([A-Za-z]+),?\s+(\d{4})/);
+  if (!m) return null;
+  const mo = MONTHS.indexOf(m[2].toLowerCase()) + 1;
+  return mo ? (+m[3]) * 10000 + mo * 100 + (+m[1]) : null;
+}
+const hm = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+
+// ---------- PDF parsing ----------
+async function parseLineup(buf) {
+  const doc = await pdfjs.getDocument({ data: buf }).promise;
+  const items = [];
+  for (let p = 1; p <= doc.numPages; p++) {
+    const pg = await doc.getPage(p); const H = pg.getViewport({ scale: 1 }).height;
+    const tc = await pg.getTextContent();
+    for (const it of tc.items) {
+      const s = it.str.replace(/\s+/g, ' ').trim(); if (!s) continue;
+      items.push({ x: it.transform[4], y: (p - 1) * 100000 + (H - it.transform[5]), s });
+    }
+  }
+  items.sort((a, b) => Math.abs(a.y - b.y) < 2 ? a.x - b.x : a.y - b.y);
+  const rows = [];
+  for (const it of items) { const r = rows[rows.length - 1]; if (r && Math.abs(r.y - it.y) < 2) r.cells.push(it); else rows.push({ y: it.y, cells: [it] }); }
+  const DATE_RE = /^\d{1,2} [A-Z][a-z]{2}$/, TIME_RE = /^\d{1,2}:\d{2}$/, DAY_RE = /^(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day\b/;
+  let lineupDate = null; const speakers = []; let cur = null, curC = null;
+  for (const r of rows) {
+    const c = r.cells, txt = c.map(x => x.s).join(' ');
+    if (!lineupDate && DAY_RE.test(txt) && /\d{4}/.test(txt)) { lineupDate = txt; continue; }
+    if (/^NY UK Region Event$/.test(txt) || /^Date Prior Comments$/.test(txt) || txt === 'Central Bank Speakers') continue;
+    if (c.length >= 3 && TIME_RE.test(c[0].s) && TIME_RE.test(c[1].s)) {
+      const rest = c.slice(2); let reg = '', ev;
+      if (rest.length >= 2 && rest[0].x < 135) { reg = rest[0].s; ev = rest.slice(1).map(x => x.s).join(' '); } else ev = rest.map(x => x.s).join(' ');
+      cur = { ny: c[0].s, uk: c[1].s, region: reg, raw: ev, comments: [] }; speakers.push(cur); curC = null; continue;
+    }
+    if (!cur) continue;
+    for (const cell of c) {
+      if (cell.x < 80 && DATE_RE.test(cell.s)) { curC = { date: cell.s, lines: [] }; cur.comments.push(curC); }
+      else if (curC) curC.lines.push(cell.s);
+    }
+  }
+  for (const sp of speakers) {
+    const m = sp.raw.match(/^(.*?)\s*Speaker:\s*([^()]+?)\s*\(([^)]*)\)\s*(.*)$/);
+    if (m) {
+      sp.bank = m[1]; sp.name = m[2];
+      const tags = m[3].split(',').map(s => s.trim());
+      sp.voter = tags.includes('NV') ? 'Non-voter' : (tags.includes('V') ? 'Voter' : '');
+      sp.bias = tags.filter(t => t !== 'NV' && t !== 'V').join(', ');
+      sp.event = m[4];
+    } else { sp.bank = ''; sp.name = ''; sp.bias = ''; sp.voter = ''; sp.event = sp.raw; }
+    const tx = sp.raw.match(/Text (yes|no)/i), qa = sp.raw.match(/Q&A (yes|no)/i);
+    sp.text = tx ? tx[1].toLowerCase() : null; sp.qa = qa ? qa[1].toLowerCase() : null;
+    sp.event = sp.event.replace(/\s*Text (yes|no)[.,]?/i, '').replace(/\s*Q&A (yes|no)[.,]?/i, '').replace(/[\s,]+$/, '').trim();
+    sp.comments = sp.comments.map(cm => ({ date: cm.date, text: cm.lines.reduce((a, l) => a ? (/[-‐]$/.test(a) ? a + l : a + ' ' + l) : l, '').trim() }));
+  }
+  return { lineupDate, dateKey: lineupDateKey(lineupDate), speakers };
+}
+
+// ---------- data loading ----------
+async function loadFeed(key, hash) {
+  const r = await fetch('/api/feed/' + key + '?h=' + hash, { cache: 'no-store' });
+  if (!r.ok) throw new Error('feed ' + key + ' ' + r.status);
+  const data = await parseLineup(await r.arrayBuffer());
+  const first = !feeds[key];
+  feeds[key] = { hash, data };
+  return first;
+}
+
+async function poll() {
+  try {
+    const r = await fetch('/api/status', { cache: 'no-store' });
+    if (!r.ok) throw new Error('status ' + r.status);
+    status = await r.json(); online = true;
+    let changed = [];
+    for (const key of ['today', 'tomorrow']) {
+      const f = status.feeds[key];
+      if (f.ready && (!feeds[key] || feeds[key].hash !== f.hash)) {
+        try {
+          const first = await loadFeed(key, f.hash);
+          if (!first) changed.push(key);
+        } catch (e) { console.warn('Could not read ' + key + ' feed', e); }
+      }
+    }
+    if (changed.includes('tomorrow') && tomorrowPublished()) toast("Tomorrow's lineup has been published");
+    else if (changed.length) toast((changed.includes('today') ? "Today's" : "Tomorrow's") + ' lineup updated');
+  } catch (e) { online = false; console.warn(e); }
+  render();
+  // poll faster around 15:00 UK
+  const m = londonMin();
+  setTimeout(poll, (m >= PUBLISH_MIN - 5 && m <= PUBLISH_MIN + 30) ? 7000 : POLL_MS);
+}
+
+function tomorrowPublished() {
+  const t = feeds.today, n = feeds.tomorrow;
+  if (!n) return false;
+  if (t && t.hash === n.hash) return false;
+  const tk = t?.data.dateKey, nk = n.data.dateKey;
+  if (tk && nk && nk <= tk) return false;
+  if (nk && nk <= londonDateKey()) return false;
+  return true;
+}
+
+// ---------- rendering ----------
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const BANK_COLORS = { fed:'#2f6f4f', ecb:'#1f4fa3', boe:'#8a1c3b', boj:'#b3261e', boc:'#c0392b', rba:'#0b6e8a', rbnz:'#27496d', snb:'#d62828', riksbank:'#1a6fb0', norges:'#0f4c81', pboc:'#b8860b' };
+function bankColor(b) {
+  const k = (b || '').toLowerCase().replace(/[^a-z]/g, '');
+  for (const n in BANK_COLORS) if (k.startsWith(n)) return BANK_COLORS[n];
+  let h = 0; for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) % 360; return `hsl(${h} 45% 38%)`;
+}
+function biasClass(b) { const l = (b || '').toLowerCase(); return l.includes('hawk') ? 'hawk' : l.includes('dove') ? 'dove' : 'neutral'; }
+
+function cardState(sp, isLiveDay) {
+  if (!isLiveDay) return '';
+  const now = londonMin(), start = hm(sp.uk);
+  if (now >= start + 45) return 'done';
+  if (now >= start) return 'live';
+  return 'upcoming';
+}
+
+function renderCards(data, isLiveDay) {
+  const list = data.speakers.filter(s => region === 'All' || s.region === region);
+  if (!list.length) return '<div class="empty">No speakers for this filter.</div>';
+  const states = list.map(s => cardState(s, isLiveDay));
+  const nextIdx = states.indexOf('upcoming');
+  return '<div class="list">' + list.map((s, i) => {
+    let st = states[i]; if (i === nextIdx) st = 'next';
+    const label = { next: 'Next up', live: 'In progress', done: 'Done' }[st];
+    const comments = s.comments.length ? `<div class="comments"><div class="h">Prior comments</div>${s.comments.map(c => `<div class="cm" title="Click to expand"><span class="d">${esc(c.date)}</span><span class="t">${esc(c.text)}</span></div>`).join('')}</div>` : '';
+    return `<article class="card ${st === 'upcoming' ? '' : st}">
+      <div class="time"><div class="lbl">UK</div><div class="uk">${esc(s.uk)}</div><div class="ny">NY ${esc(s.ny)}</div>${label ? `<span class="state ${st}">${label}</span>` : ''}</div>
+      <div class="body">
+        <div class="top">
+          ${s.bank ? `<span class="bank" style="background:${bankColor(s.bank)}">${esc(s.bank)}</span>` : ''}
+          ${s.name ? `<span class="name">${esc(s.name)}</span>` : ''}
+          ${s.bias ? `<span class="pill ${biasClass(s.bias)}">${esc(s.bias)}</span>` : ''}
+          ${s.voter ? `<span class="pill nv">${esc(s.voter)}</span>` : ''}
+        </div>
+        <div class="event">${esc(s.event)}</div>
+        <div class="meta">
+          ${s.region ? `<span class="tag">${esc(s.region)}</span>` : ''}
+          ${s.text ? `<span class="tag ${s.text === 'yes' ? 'yes' : ''}">Text: ${s.text}</span>` : ''}
+          ${s.qa ? `<span class="tag ${s.qa === 'yes' ? 'yes' : ''}">Q&amp;A: ${s.qa}</span>` : ''}
+        </div>
+        ${comments}
+      </div></article>`;
+  }).join('') + '</div>';
+}
+
+function countdownTo15() {
+  const now = londonMin(); let diff = PUBLISH_MIN - now; if (diff < 0) diff += 24 * 60;
+  const secs = Math.round(diff * 60); return `${pad(Math.floor(secs / 3600))}:${pad(Math.floor(secs % 3600 / 60))}:${pad(secs % 60)}`;
+}
+
+function render() {
+  // clocks
+  const L = tzParts('Europe/London'), N = tzParts('America/New_York');
+  document.getElementById('clkLon').textContent = `${pad(L.h)}:${pad(L.mi)}:${pad(L.s)}`;
+  document.getElementById('clkNy').textContent = `${pad(N.h)}:${pad(N.mi)}:${pad(N.s)}`;
+
+  // status line
+  const dot = document.getElementById('dot'), st = document.getElementById('statusText');
+  const errs = status ? Object.values(status.feeds).filter(f => f.error) : [];
+  dot.classList.toggle('off', !online || errs.length > 0);
+  if (!online) st.textContent = 'Server unreachable – retrying…';
+  else if (status) {
+    const f = status.feeds[tab];
+    const t = f.fetchedAt ? new Date(f.fetchedAt).toLocaleTimeString('en-GB', { timeZone: 'Europe/London' }) : '—';
+    st.textContent = (errs.length ? 'Source error – showing last good copy · ' : 'Live · ') + 'checked ' + t;
+  }
+
+  // tabs + counts
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  document.getElementById('cntToday').textContent = feeds.today ? feeds.today.data.speakers.length : '';
+  document.getElementById('cntTomorrow').textContent = tomorrowPublished() ? feeds.tomorrow.data.speakers.length : '';
+
+  const view = document.getElementById('view');
+  let feed = feeds[tab];
+  // After midnight, before the provider rolls the "today" file, yesterday's
+  // "tomorrow" file already holds today's lineup – use it.
+  if (tab === 'today' && feed && feeds.tomorrow && feed.data.dateKey && feed.data.dateKey < londonDateKey() && feeds.tomorrow.data.dateKey === londonDateKey()) feed = feeds.tomorrow;
+  const openCm = [...view.querySelectorAll('.cm.open')].map(e => e.dataset.k);
+
+  if (!feed) { view.innerHTML = '<div class="empty">Loading lineup…</div>'; renderFilters(null); return; }
+
+  if (tab === 'tomorrow' && !tomorrowPublished()) {
+    renderFilters(null);
+    const after = londonMin() >= PUBLISH_MIN;
+    view.innerHTML = `<div class="notice">
+      <h3>Tomorrow's lineup isn't out yet</h3>
+      <p>${after ? 'Due at 15:00 UK time – checking every few seconds.' : 'It is published at 15:00 UK time. Until then the feed still carries today’s list.'}</p>
+      ${after ? '' : `<div class="countdown" id="cd">${countdownTo15()}</div><p>until publication</p>`}
+      <p style="margin-top:10px">This page will switch over by itself. No refresh needed.</p></div>`;
+    return;
+  }
+
+  const data = feed.data;
+  const isLiveDay = tab === 'today' && data.dateKey === londonDateKey();
+  let warn = '';
+  if (tab === 'today' && data.dateKey && data.dateKey !== londonDateKey()) warn = `<div class="warnline">The source currently shows <b>${esc(data.lineupDate)}</b>. It will update when the provider publishes the new day.</div>`;
+  const src = status?.feeds[tab]?.shortUrl || '#';
+  renderFilters(data);
+  view.innerHTML = `<div class="dayhead"><h2>${esc(data.lineupDate || (tab === 'today' ? 'Today' : 'Tomorrow'))}</h2><a href="${esc(src)}" target="_blank" rel="noopener">Open original PDF ↗</a></div>${warn}${renderCards(data, isLiveDay)}`;
+  view.querySelectorAll('.cm').forEach((el, i) => { el.dataset.k = i; if (openCm.includes(String(i))) el.classList.add('open'); });
+}
+
+function renderFilters(data) {
+  const box = document.getElementById('filters');
+  if (!data) { box.innerHTML = ''; return; }
+  const regions = ['All', ...new Set(data.speakers.map(s => s.region).filter(Boolean))];
+  if (!regions.includes(region)) region = 'All';
+  box.innerHTML = regions.length > 2 ? regions.map(r => `<button class="chip" data-r="${esc(r)}" aria-pressed="${r === region}">${esc(r)}</button>`).join('') : '';
+}
+
+// ---------- events ----------
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  tab = b.dataset.tab; try { sessionStorage.setItem('cbs-tab', tab); } catch (_) {}
+  render();
+});
+document.getElementById('filters').addEventListener('click', e => { const c = e.target.closest('.chip'); if (!c) return; region = c.dataset.r; render(); });
+document.getElementById('view').addEventListener('click', e => { const c = e.target.closest('.cm'); if (c) c.classList.toggle('open'); });
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next; try { localStorage.setItem('cbs-theme', next); } catch (_) {}
+});
+
+let toastT;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 5000); }
+
+// ticking clock + countdown + card states (without re-parsing)
+let lastMinute = -1;
+setInterval(() => {
+  const L = tzParts('Europe/London'), N = tzParts('America/New_York');
+  document.getElementById('clkLon').textContent = `${pad(L.h)}:${pad(L.mi)}:${pad(L.s)}`;
+  document.getElementById('clkNy').textContent = `${pad(N.h)}:${pad(N.mi)}:${pad(N.s)}`;
+  const cd = document.getElementById('cd'); if (cd) cd.textContent = countdownTo15();
+  if (L.mi !== lastMinute) { lastMinute = L.mi; render(); }
+}, 1000);
+
+poll();
+</script>
+</body>
+</html>
